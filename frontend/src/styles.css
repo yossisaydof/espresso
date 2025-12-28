@@ -1,0 +1,182 @@
+/* src/styles.css */
+/* Basic and simple styling for the app */
+
+body {
+    margin: 0;
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+        sans-serif;
+    background-color: #f5f5f5;
+}
+
+.app-container {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 16px;
+}
+
+.app-header {
+    margin-bottom: 16px;
+}
+
+.app-subtitle {
+    margin: 0;
+    color: #555;
+    font-size: 0.9rem;
+}
+
+.app-main {
+    background-color: #ffffff;
+    padding: 16px;
+    border-radius: 8px;
+    box-shadow: 0 0 8px rgba(0, 0, 0, 0.05);
+}
+
+.section {
+    margin-bottom: 24px;
+}
+
+.section-title {
+    margin: 0 0 8px 0;
+    font-size: 1.1rem;
+}
+
+.row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+}
+
+.column {
+    flex: 1;
+    min-width: 260px;
+}
+
+label {
+    display: block;
+    margin-bottom: 4px;
+    font-size: 0.9rem;
+}
+
+input[type="text"],
+select,
+textarea {
+    width: 100%;
+    padding: 6px 8px;
+    border-radius: 4px;
+    border: 1px solid #ccc;
+    font-size: 0.9rem;
+    box-sizing: border-box;
+}
+
+textarea {
+    min-height: 80px;
+    resize: vertical;
+}
+
+button {
+    padding: 6px 12px;
+    border-radius: 4px;
+    border: 1px solid #333;
+    background-color: #333;
+    color: #ffffff;
+    font-size: 0.9rem;
+    cursor: pointer;
+}
+
+button.secondary {
+    background-color: #eeeeee;
+    border-color: #cccccc;
+    color: #333333;
+}
+
+button:disabled {
+    opacity: 0.6;
+    cursor: default;
+}
+
+.table-wrapper {
+    width: 100%;
+    overflow-x: auto;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.9rem;
+}
+
+th,
+td {
+    border: 1px solid #dddddd;
+    padding: 6px 8px;
+    text-align: left;
+}
+
+th {
+    background-color: #fafafa;
+}
+
+.badge {
+    display: inline-block;
+    padding: 2px 6px;
+    border-radius: 999px;
+    font-size: 0.75rem;
+}
+
+.badge.severity-minor {
+    background-color: #e0f7e9;
+}
+
+.badge.severity-major {
+    background-color: #fff4e0;
+}
+
+.badge.severity-critical {
+    background-color: #ffe0e0;
+}
+
+.badge.status-open {
+    background-color: #e0f0ff;
+}
+
+.badge.status-in_progress {
+    background-color: #f0e0ff;
+}
+
+.badge.status-resolved {
+    background-color: #e0ffe8;
+}
+
+.error-text {
+    color: #b00020;
+    font-size: 0.85rem;
+}
+
+.helper-text {
+    color: #777777;
+    font-size: 0.8rem;
+}
+
+.dashboard-cards {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.dashboard-card {
+    padding: 8px 10px;
+    border-radius: 6px;
+    background-color: #fafafa;
+    border: 1px solid #dddddd;
+    min-width: 120px;
+}
+
+.dashboard-card-title {
+    font-size: 0.8rem;
+    color: #555555;
+}
+
+.dashboard-card-value {
+    font-size: 1.1rem;
+    font-weight: bold;
+}
