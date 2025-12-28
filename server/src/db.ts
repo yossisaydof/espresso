@@ -32,7 +32,7 @@ export async function initDb(): Promise<void> {
       id SERIAL PRIMARY KEY,
       title TEXT NOT NULL,
       description TEXT NOT NULL,
-      site TEXT,
+      site TEXT NOT NULL,
       severity TEXT NOT NULL CHECK (severity IN ('minor', 'major', 'critical')),
       status TEXT NOT NULL CHECK (status IN ('open', 'in_progress', 'resolved')),
       created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),

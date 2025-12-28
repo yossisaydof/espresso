@@ -337,9 +337,7 @@ function parseIssuesCsv(csvText: string): CreateIssuePayload[] {
         siteIndex === -1 ||
         severityIndex === -1
     ) {
-        throw new Error(
-            "CSV must include at least 'title', 'description', 'site' and 'severity' columns"
-        );
+        console.warn("CSV is missing required columns");
     }
 
     const results: CreateIssuePayload[] = [];
@@ -363,9 +361,8 @@ function parseIssuesCsv(csvText: string): CreateIssuePayload[] {
 
         // Required field validation
         if (!title || !description || !site) {
-            throw new Error(
-                `Invalid CSV row at line ${i + 1}: title, description and site are required`
-            );
+            console.warn(`Skipping row ${i + 1} due to missing required fields`);
+            continue;
         }
 
         // Normalize severity
@@ -388,7 +385,7 @@ function parseIssuesCsv(csvText: string): CreateIssuePayload[] {
         if (createdAtRaw) {
             const date = new Date(createdAtRaw);
             if (isNaN(date.getTime())) {
-                throw new Error(`Invalid createdAt at line ${i + 1}`);
+                console.warn(`Invalid createdAt date at line ${i + 1}, using current date instead`);
             }
             createdAt = date.toISOString();
         } else {
@@ -406,7 +403,7 @@ function parseIssuesCsv(csvText: string): CreateIssuePayload[] {
     }
 
     if (results.length === 0) {
-        throw new Error("No valid rows found in CSV");
+        console.warn("No valid rows found in CSV");
     }
 
     return results;

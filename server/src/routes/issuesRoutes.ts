@@ -9,7 +9,6 @@ import {
     getDashboard,
     importCsv
 } from "../controllers/issuesController";
-import { importIssuesFromCsv } from "../services/issuesService";
 
 const router = Router();
 
