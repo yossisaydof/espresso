@@ -1,7 +1,3 @@
-// This component displays a form for creating or editing an issue.
-// It manages only the form fields and sends the result to the parent
-// via the onSubmit callback.
-
 import { useEffect, useState } from "react";
 
 const EMPTY_FORM = {

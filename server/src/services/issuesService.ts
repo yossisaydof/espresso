@@ -14,7 +14,6 @@ import {
 } from "../types/dashboard";
 import { QueryResultRow } from "pg";
 
-// Type matching the DB column names
 interface IssueRow extends QueryResultRow {
     id: number;
     title: string;
@@ -26,7 +25,6 @@ interface IssueRow extends QueryResultRow {
     updated_at: string | Date;
 }
 
-// Map DB row -> Issue domain type
 function mapIssueRow(row: IssueRow): Issue {
     return {
         id: row.id,
@@ -40,7 +38,6 @@ function mapIssueRow(row: IssueRow): Issue {
     };
 }
 
-// Build WHERE clause dynamically based on filters
 function buildListWhereClause(filters: IssueFilters): {
     whereSql: string;
     params: unknown[];
@@ -67,7 +64,6 @@ function buildListWhereClause(filters: IssueFilters): {
     return { whereSql, params };
 }
 
-// List issues with optional filters
 export async function listIssues(filters: IssueFilters): Promise<Issue[]> {
     const { whereSql, params } = buildListWhereClause(filters);
 
@@ -90,7 +86,6 @@ export async function listIssues(filters: IssueFilters): Promise<Issue[]> {
     return result.rows.map(mapIssueRow);
 }
 
-// Get a single issue by id
 export async function getIssue(id: number): Promise<Issue | null> {
     const sql = `
     SELECT
@@ -111,7 +106,6 @@ export async function getIssue(id: number): Promise<Issue | null> {
     return row ? mapIssueRow(row) : null;
 }
 
-// Create a new issue
 export async function createIssue(payload: CreateIssuePayload) {
     const createdAt =
         payload.createdAt && !isNaN(new Date(payload.createdAt).getTime())
@@ -153,12 +147,10 @@ export async function createIssue(payload: CreateIssuePayload) {
     return row ? mapIssueRow(row) : null;
 }
 
-// Update an existing issue
 export async function updateIssue(
     id: number,
     payload: UpdateIssuePayload
 ): Promise<Issue | null> {
-    // Build dynamic UPDATE based on fields present in payload
     const fields: string[] = [];
     const params: unknown[] = [];
 
@@ -184,11 +176,9 @@ export async function updateIssue(
     }
 
     if (fields.length === 0) {
-        // Nothing to update
         return getIssue(id);
     }
 
-    // updated_at should always change
     fields.push(`updated_at = NOW()`);
 
     params.push(id);
@@ -212,14 +202,12 @@ export async function updateIssue(
     return row ? mapIssueRow(row) : null;
 }
 
-// Delete an issue
 export async function deleteIssue(id: number): Promise<boolean> {
     const sql = `DELETE FROM issues WHERE id = $1`;
     const result = await query<IssueRow>(sql, [id]);
     return result.rowCount === 1;
 }
 
-// Mark issue as resolved
 export async function resolveIssue(id: number): Promise<Issue | null> {
     const sql = `
     UPDATE issues
@@ -241,7 +229,6 @@ export async function resolveIssue(id: number): Promise<Issue | null> {
     return row ? mapIssueRow(row) : null;
 }
 
-// Compute dashboard summary (counts by status & severity)
 export async function getDashboardSummary(): Promise<DashboardSummary> {
     const statusCounts: StatusCounts = {
         open: 0,
@@ -285,10 +272,6 @@ export async function getDashboardSummary(): Promise<DashboardSummary> {
     };
 }
 
-/**
- * Import multiple issues from a CSV text.
- * This function parses the CSV and creates issues one by one.
- */
 export async function importIssuesFromCsv(csvText: string) {
     const rows = parseIssuesCsv(csvText);
     const importedIssues = [];
@@ -301,14 +284,7 @@ export async function importIssuesFromCsv(csvText: string) {
     return importedIssues;
 }
 
-/**
- * Parse a CSV string and convert it into an array of CreateIssuePayload.
- * This parser expects the CSV to include the following columns:
- * title, description, site, severity, status
- * "site" is required and must be a non-empty string.
- */
 function parseIssuesCsv(csvText: string): CreateIssuePayload[] {
-    // Split into non-empty trimmed lines
     const lines = csvText
         .split(/\r?\n/)
         .map((line) => line.trim())
@@ -330,7 +306,6 @@ function parseIssuesCsv(csvText: string): CreateIssuePayload[] {
     const statusIndex = headers.indexOf("status");
     const createdAtIndex = headers.indexOf("createdat");
 
-    // Validate required columns
     if (
         titleIndex === -1 ||
         descriptionIndex === -1 ||
@@ -342,7 +317,6 @@ function parseIssuesCsv(csvText: string): CreateIssuePayload[] {
 
     const results: CreateIssuePayload[] = [];
 
-    // Iterate all data rows (skip header)
     for (let i = 1; i < lines.length; i++) {
         const line = lines[i];
         if (!line) continue;
@@ -359,13 +333,11 @@ function parseIssuesCsv(csvText: string): CreateIssuePayload[] {
         const createdAtRaw =
             createdAtIndex !== -1 ? columns[createdAtIndex] : "";
 
-        // Required field validation
         if (!title || !description || !site) {
             console.warn(`Skipping row ${i + 1} due to missing required fields`);
             continue;
         }
 
-        // Normalize severity
         let severity: CreateIssuePayload["severity"];
         if (severityRaw === "major" || severityRaw === "critical") {
             severity = severityRaw;
@@ -373,7 +345,6 @@ function parseIssuesCsv(csvText: string): CreateIssuePayload[] {
             severity = "minor";
         }
 
-        // Normalize status
         let status: CreateIssuePayload["status"];
         if (statusRaw === "in_progress" || statusRaw === "resolved") {
             status = statusRaw;

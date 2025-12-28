@@ -3,7 +3,6 @@ import { Pool, PoolClient, QueryResult, QueryResultRow } from "pg";
 
 dotenv.config();
 
-// Read connection string from environment
 const connectionString = process.env.DATABASE_URL;
 
 if (!connectionString) {
@@ -12,12 +11,10 @@ if (!connectionString) {
   );
 }
 
-// Single shared connection pool for the whole app
 export const pool = new Pool({
   connectionString
 });
 
-// Generic helper for running queries with the pool
 export function query<T extends QueryResultRow = QueryResultRow>(
   text: string,
   params?: unknown[]
@@ -25,7 +22,6 @@ export function query<T extends QueryResultRow = QueryResultRow>(
   return pool.query<T>(text, params);
 }
 
-// Initialize database schema. Create issues table if it does not exist
 export async function initDb(): Promise<void> {
   const createTableSql = `
     CREATE TABLE IF NOT EXISTS issues (

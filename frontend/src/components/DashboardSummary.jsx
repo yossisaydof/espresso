@@ -1,6 +1,3 @@
-// This component loads and displays a small dashboard summary:
-// counts of issues by status and by severity.
-
 import { useEffect, useState } from "react";
 import { getDashboardSummary } from "../api/issuesApi.js";
 

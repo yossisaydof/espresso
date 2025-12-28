@@ -1,7 +1,3 @@
-// This component displays a table of issues and shows basic actions:
-// edit, resolve and delete. It does not call the backend directly.
-// Instead, it calls callback functions provided by the parent.
-
 function IssuesTable({ issues, onEdit, onResolve, onDelete }) {
     return (
         <div className="section">

@@ -213,7 +213,6 @@ export async function importFromCsv(
       issues: importedIssues
     });
   } catch (error) {
-    // Pass the error to the global error handler
     next(error);
   }
 }

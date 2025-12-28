@@ -1,6 +1,3 @@
-// This component displays filters for searching issues by title,
-// status and severity. It does not manage data itself,
-// it only calls callback functions provided by the parent.
 
 function IssueFilters({
     searchTerm,

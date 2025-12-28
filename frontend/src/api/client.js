@@ -1,6 +1,3 @@
-// This file defines a simple helper function for making HTTP requests
-// to the backend API using fetch.
-
 const API_BASE_URL =
     import.meta.env.VITE_API_BASE_URL || "http://localhost:4000/api";
 
@@ -25,7 +22,6 @@ export async function apiRequest(path, options = {}) {
     const isJson = contentType && contentType.includes("application/json");
 
     if (!response.ok) {
-        // Try to read error message from JSON response if possible
         let message = `Request failed with status ${response.status}`;
 
         if (isJson) {
@@ -35,7 +31,6 @@ export async function apiRequest(path, options = {}) {
                     message = body.error;
                 }
             } catch {
-                // Ignore JSON parse errors and use the default message
             }
         }
 

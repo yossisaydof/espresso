@@ -1,6 +1,3 @@
-// This component lets the user select a CSV file from the computer
-// and then sends its text content to the parent via onImport(csvText).
-
 import { useState } from "react";
 
 function ImportCsvSection({ onImport, isImporting }) {

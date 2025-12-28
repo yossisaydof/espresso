@@ -1,6 +1,3 @@
-// This file contains helper functions for working with "issues"
-// using the backend API.
-
 import { apiRequest } from "./client.js";
 
 /**
