@@ -19,7 +19,6 @@ async function bootstrap(): Promise<void> {
 
     app.use("/api/issues", issuesRoutes);
 
-    // Basic global error handler
     app.use(
         (err: Error, req: Request, res: Response, next: NextFunction): void => {
             console.error(err);

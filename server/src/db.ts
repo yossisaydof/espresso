@@ -7,27 +7,27 @@ dotenv.config();
 const connectionString = process.env.DATABASE_URL;
 
 if (!connectionString) {
-    throw new Error(
-        "DATABASE_URL is not set. Please define it in your .env file."
-    );
+  throw new Error(
+    "DATABASE_URL is not set. Please define it in your .env file."
+  );
 }
 
 // Single shared connection pool for the whole app
 export const pool = new Pool({
-    connectionString
+  connectionString
 });
 
 // Generic helper for running queries with the pool
 export function query<T extends QueryResultRow = QueryResultRow>(
-    text: string,
-    params?: unknown[]
+  text: string,
+  params?: unknown[]
 ): Promise<QueryResult<T>> {
-    return pool.query<T>(text, params);
+  return pool.query<T>(text, params);
 }
 
 // Initialize database schema. Create issues table if it does not exist
 export async function initDb(): Promise<void> {
-    const createTableSql = `
+  const createTableSql = `
     CREATE TABLE IF NOT EXISTS issues (
       id SERIAL PRIMARY KEY,
       title TEXT NOT NULL,
@@ -49,5 +49,5 @@ export async function initDb(): Promise<void> {
       ON issues (created_at DESC);
   `;
 
-    await query(createTableSql);
+  await query(createTableSql);
 }

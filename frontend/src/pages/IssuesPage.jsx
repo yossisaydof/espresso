@@ -1,8 +1,3 @@
-// It:
-// - loads issues from the backend
-// - manages filters
-// - handles create / edit / resolve / delete actions
-// - passes data and callbacks to child components
 import { useEffect, useState } from "react";
 import {
     getIssues,

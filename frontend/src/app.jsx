@@ -1,6 +1,3 @@
-// This is the root component of the app.
-// It defines the basic layout and renders the main page.
-
 import IssuesPage from "./pages/IssuesPage.jsx";
 
 function App() {

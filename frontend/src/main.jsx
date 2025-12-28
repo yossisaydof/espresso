@@ -1,9 +1,6 @@
-// This file is the entry point of the React app.
-// It connects the React component tree to the HTML page.
-
 import React from "react";
 import ReactDOM from "react-dom/client";
-import App from "./App.jsx";
+import App from "./app.jsx";
 import "./styles.css";
 
 // Find the root DOM element in index.html

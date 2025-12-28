@@ -1,4 +1,3 @@
-
 // statusCounts represents the count of issues by their status
 export interface StatusCounts {
     open: number;

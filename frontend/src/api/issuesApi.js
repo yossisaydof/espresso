@@ -69,7 +69,6 @@ export async function resolveIssue(id) {
 
 /**
  * Import issues from CSV text.
- * Expects the backend to have a POST /issues/import-csv endpoint.
  */
 export async function importIssuesFromCsv(csvText) {
     return apiRequest(`/issues/import-csv`, {
