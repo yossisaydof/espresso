@@ -135,9 +135,7 @@ function IssuesPage() {
             setIsImporting(true);
             setImportError(null);
 
-            const csvText = await file.text();
-
-            const importedIssues = await importIssuesFromCsv(csvText);
+            const importedIssues = await importIssuesFromCsv(file);
             console.log("Imported issues:", importedIssues);
 
             alert(`Imported ${importedIssues.length} issues successfully`);

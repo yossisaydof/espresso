@@ -65,11 +65,13 @@ export async function resolveIssue(id) {
 }
 
 /**
- * Import issues from CSV text.
+ * Import issues from a CSV file using multipart/form-data.
  */
-export async function importIssuesFromCsv(csvText) {
+export async function importIssuesFromCsv(file) {
+    const formData = new FormData();
+    formData.append("file", file, file.name);
     return apiRequest(`/issues/import-csv`, {
         method: "POST",
-        body: JSON.stringify({ csvText })
+        body: formData
     });
 }

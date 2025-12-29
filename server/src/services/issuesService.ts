@@ -13,6 +13,7 @@ import {
     SeverityCounts
 } from "../types/dashboard";
 import { QueryResultRow } from "pg";
+import { parse } from "csv-parse/sync";
 
 interface IssueRow extends QueryResultRow {
     id: number;
@@ -25,6 +26,9 @@ interface IssueRow extends QueryResultRow {
     updated_at: string | Date;
 }
 
+/**
+ * Convert a raw DB row (snake_case columns) into a typed `Issue` domain object.
+ */
 function mapIssueRow(row: IssueRow): Issue {
     return {
         id: row.id,
@@ -273,8 +277,8 @@ export async function getDashboardSummary(): Promise<DashboardSummary> {
 }
 
 export async function importIssuesFromCsv(csvText: string) {
-    const rows = parseIssuesCsv(csvText);
-    const importedIssues = [];
+    const rows = parseIssuesCsvWithLib(csvText);
+    const importedIssues: Issue[] = [];
 
     for (const row of rows) {
         const created = await createIssue(row);
@@ -284,70 +288,61 @@ export async function importIssuesFromCsv(csvText: string) {
     return importedIssues;
 }
 
-function parseIssuesCsv(csvText: string): CreateIssuePayload[] {
-    const lines = csvText
-        .split(/\r?\n/)
-        .map((line) => line.trim())
-        .filter((line) => line.length > 0);
+export async function importIssuesFromCsvBuffer(buffer: Buffer) {
+    const csvText = buffer.toString("utf8");
+    return importIssuesFromCsv(csvText);
+}
 
-    if (lines.length === 0) {
-        throw new Error("CSV is empty");
-    }
+function parseIssuesCsvWithLib(csvText: string): CreateIssuePayload[] {
+    const records: any[] = parse(csvText, {
+        columns: true,
+        skip_empty_lines: true,
+        trim: true
+    });
 
-    // First line = header
-    const headers = lines[0]
-        .split(",")
-        .map((h) => h.trim().toLowerCase());
-
-    const titleIndex = headers.indexOf("title");
-    const descriptionIndex = headers.indexOf("description");
-    const siteIndex = headers.indexOf("site");
-    const severityIndex = headers.indexOf("severity");
-    const statusIndex = headers.indexOf("status");
-    const createdAtIndex = headers.indexOf("createdat");
-
-    if (
-        titleIndex === -1 ||
-        descriptionIndex === -1 ||
-        siteIndex === -1 ||
-        severityIndex === -1
-    ) {
-        console.warn("CSV is missing required columns");
+    if (!records || records.length === 0) {
+        throw new Error("CSV is empty or has no data rows");
     }
 
     const results: CreateIssuePayload[] = [];
 
-    for (let i = 1; i < lines.length; i++) {
-        const line = lines[i];
-        if (!line) continue;
+    const getVal = (obj: any, keys: string[], defaultValue = "") => {
+        for (const k of keys) {
+            if (obj[k] != null && String(obj[k]).trim().length > 0) return String(obj[k]).trim();
+        }
+        return defaultValue;
+    };
 
-        const columns = line.split(",").map((c) => c.trim());
+    for (let i = 0; i < records.length; i++) {
+        const raw = records[i];
+        // normalize keys to lower-case for case-insensitive access
+        const rec: Record<string, string> = {};
+        for (const key of Object.keys(raw)) {
+            rec[key.trim().toLowerCase()] = String((raw as any)[key] ?? "").trim();
+        }
 
-        const title = columns[titleIndex] || "";
-        const description = columns[descriptionIndex] || "";
-        const site = columns[siteIndex] || "";
-        const severityRaw =
-            severityIndex !== -1 ? columns[severityIndex].toLowerCase() : "minor";
-        const statusRaw =
-            statusIndex !== -1 ? columns[statusIndex].toLowerCase() : "open";
-        const createdAtRaw =
-            createdAtIndex !== -1 ? columns[createdAtIndex] : "";
+        const title = getVal(rec, ["title"]);
+        const description = getVal(rec, ["description", "desc"]);
+        const site = getVal(rec, ["site", "location"]);
+        const severityRaw = getVal(rec, ["severity"], "minor").toLowerCase();
+        const statusRaw = getVal(rec, ["status"], "open").toLowerCase();
+        const createdAtRaw = getVal(rec, ["createdat", "created_at", "created"]);
 
         if (!title || !description || !site) {
-            console.warn(`Skipping row ${i + 1} due to missing required fields`);
+            console.warn(`Skipping row ${i + 2} due to missing required fields`);
             continue;
         }
 
         let severity: CreateIssuePayload["severity"];
         if (severityRaw === "major" || severityRaw === "critical") {
-            severity = severityRaw;
+            severity = severityRaw as any;
         } else {
             severity = "minor";
         }
 
         let status: CreateIssuePayload["status"];
         if (statusRaw === "in_progress" || statusRaw === "resolved") {
-            status = statusRaw;
+            status = statusRaw as any;
         } else {
             status = "open";
         }
@@ -355,22 +350,12 @@ function parseIssuesCsv(csvText: string): CreateIssuePayload[] {
         let createdAt: string;
         if (createdAtRaw) {
             const date = new Date(createdAtRaw);
-            if (isNaN(date.getTime())) {
-                console.warn(`Invalid createdAt date at line ${i + 1}, using current date instead`);
-            }
-            createdAt = date.toISOString();
+            createdAt = isNaN(date.getTime()) ? new Date().toISOString() : date.toISOString();
         } else {
             createdAt = new Date().toISOString();
         }
 
-        results.push({
-            title,
-            description,
-            site,
-            severity,
-            status,
-            createdAt
-        });
+        results.push({ title, description, site, severity, status, createdAt });
     }
 
     if (results.length === 0) {

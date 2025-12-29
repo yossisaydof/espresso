@@ -6,6 +6,9 @@ import {
 const VALID_SEVERITIES: Severity[] = ["minor", "major", "critical"];
 const VALID_STATUSES: Status[] = ["open", "in_progress", "resolved"];
 
+/**
+ * Type guard that checks whether the provided value is a valid `Severity`.
+ */
 export function isValidSeverity(value: unknown): value is Severity {
     return typeof value === "string" && VALID_SEVERITIES.includes(value as Severity);
 }
