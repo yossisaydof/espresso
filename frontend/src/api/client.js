@@ -10,11 +10,13 @@ const API_BASE_URL =
 export async function apiRequest(path, options = {}) {
     const url = `${API_BASE_URL}${path}`;
 
+    const isFormData = options && options.body && typeof FormData !== "undefined" && options.body instanceof FormData;
+
     const response = await fetch(url, {
-        headers: {
-            "Content-Type": "application/json",
-            ...(options.headers || {})
-        },
+        // Only set JSON content-type when not sending FormData.
+        headers: isFormData
+            ? { ...(options.headers || {}) }
+            : { "Content-Type": "application/json", ...(options.headers || {}) },
         ...options
     });
 

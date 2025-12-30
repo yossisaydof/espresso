@@ -5,7 +5,12 @@ import {
   validateUpdateIssuePayload
 } from "../utils/validation";
 
-// GET /api/issues
+/**
+ * GET /api/issues
+ * List issues with optional query filters: `search`, `status`, `severity`.
+ * - 200: JSON array of issues
+ * - 500: Internal error
+ */
 export async function getIssues(
   req: Request,
   res: Response,
@@ -27,7 +32,13 @@ export async function getIssues(
   }
 }
 
-// GET /api/issues/:id
+/**
+ * GET /api/issues/:id
+ * Fetch a single issue by numeric id.
+ * - 200: Issue JSON
+ * - 400: id is not a number
+ * - 404: not found
+ */
 export async function getIssueById(
   req: Request,
   res: Response,
@@ -52,7 +63,12 @@ export async function getIssueById(
   }
 }
 
-// POST /api/issues
+/**
+ * POST /api/issues
+ * Create a new issue.
+ * - 201: Created issue JSON
+ * - 400: validation error
+ */
 export async function createIssue(
   req: Request,
   res: Response,
@@ -72,7 +88,13 @@ export async function createIssue(
   }
 }
 
-// PUT /api/issues/:id
+/**
+ * PUT /api/issues/:id
+ * Update selected fields of an issue.
+ * - 200: Updated issue JSON
+ * - 400: invalid id or payload
+ * - 404: not found
+ */
 export async function updateIssue(
   req: Request,
   res: Response,
@@ -103,7 +125,13 @@ export async function updateIssue(
   }
 }
 
-// DELETE /api/issues/:id
+/**
+ * DELETE /api/issues/:id
+ * Delete an issue by id.
+ * - 204: deleted
+ * - 400: invalid id
+ * - 404: not found
+ */
 export async function deleteIssue(
   req: Request,
   res: Response,
@@ -167,21 +195,33 @@ export async function getDashboard(
   }
 }
 
-// POST /api/issues/import
+// POST /api/issues/import (multipart/form-data)
 export async function importCsv(
   req: Request,
   res: Response,
   next: NextFunction
 ): Promise<void> {
   try {
-    const { csvText } = req.body;
+    // multer provides `req.file` when using upload.single("file")
+    const file: any = (req as any).file;
 
-    if (!csvText || typeof csvText !== "string") {
-      res.status(400).json({ error: "csvText is required and must be a string" });
+    if (!file || !file.buffer) {
+      res.status(400).json({ error: "file is required" });
       return;
     }
 
-    const result = await issuesService.importIssuesFromCsv(csvText);
+    // Optional: basic mimetype check
+    const allowedTypes = [
+      "text/csv",
+      "application/vnd.ms-excel",
+      "application/csv",
+      "text/plain"
+    ];
+    if (file.mimetype && !allowedTypes.includes(file.mimetype)) {
+      console.warn(`Unexpected CSV mimetype: ${file.mimetype}`);
+    }
+
+    const result = await issuesService.importIssuesFromCsvBuffer(file.buffer);
     res.json(result);
   } catch (err) {
     next(err);
